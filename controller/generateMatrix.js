@@ -87,19 +87,114 @@ async function create() {
     }
   }
 
-  await setTimeout(() => {
-    console.log("timeout");
-    for (let i = 0; i < matrix.length; i++) {
-      matrix[i] = matrix[i].join(" ");
+  let enemiesPos = [];
+
+  for (let i = 0; i < 5; i++) {
+    let enemyPut = false;
+    while (!enemyPut) {
+      let count = {
+        x: Math.floor(Math.random() * matrixLength),
+        y: Math.floor(Math.random() * matrixLength)
+      };
+
+      if (matrix[count.x][count.y] == "0") {
+        matrix[count.x][count.y] = "e";
+        enemiesPos.push(count);
+        enemyPut = true;
+      }
+    }
+  }
+
+  let playerPut = false;
+  let playerPos = {};
+
+  while (!playerPut) {
+    let count = {
+      x: Math.floor(Math.random() * matrixLength),
+      y: Math.floor(Math.random() * matrixLength)
+    };
+
+    if (matrix[count.x][count.y] == "0") {
+      matrix[count.x][count.y] = "p";
+      playerPos = { ...count };
+      playerPut = true;
+    }
+  }
+
+  let interval = setInterval(() => {
+    let rand = Math.random();
+    enemiesPos.forEach(enemy => {
+      if (rand > 0.5) {
+        if (enemy.y >= playerPos.y && matrix[enemy.y - 1][enemy.x] != "x") {
+          matrix[enemy.y][enemy.x] = "0";
+          enemy.y = enemy.y - 1;
+          matrix[enemy.y][enemy.x] = "e";
+        } else if (
+          enemy.y <= playerPos.y &&
+          matrix[enemy.y + 1][enemy.x] != "x"
+        ) {
+          matrix[enemy.y][enemy.x] = "0";
+          enemy.y = enemy.y + 1;
+          matrix[enemy.y][enemy.x] = "e";
+        } else if (
+          enemy.x >= playerPos.x &&
+          matrix[enemy.y][enemy.x - 1] != "x"
+        ) {
+          matrix[enemy.y][enemy.x] = "0";
+          enemy.x = enemy.x - 1;
+          matrix[enemy.y][enemy.x] = "e";
+        } else if (
+          enemy.x <= playerPos.x &&
+          matrix[enemy.y][enemy.x + 1] != "x"
+        ) {
+          matrix[enemy.y][enemy.x] = "0";
+          enemy.x = enemy.x + 1;
+          matrix[enemy.y][enemy.x] = "e";
+        }
+      } else {
+        if (enemy.x >= playerPos.x && matrix[enemy.y][enemy.x - 1] != "x") {
+          matrix[enemy.y][enemy.x] = "0";
+          enemy.x = enemy.x - 1;
+          matrix[enemy.y][enemy.x] = "e";
+        } else if (
+          enemy.x <= playerPos.x &&
+          matrix[enemy.y][enemy.x + 1] != "x"
+        ) {
+          matrix[enemy.y][enemy.x] = "0";
+          enemy.x = enemy.x + 1;
+          matrix[enemy.y][enemy.x] = "e";
+        } else if (
+          enemy.y >= playerPos.y &&
+          matrix[enemy.y - 1][enemy.x] != "x"
+        ) {
+          matrix[enemy.y][enemy.x] = "0";
+          enemy.y = enemy.y - 1;
+          matrix[enemy.y][enemy.x] = "e";
+        } else if (
+          enemy.y <= playerPos.y &&
+          matrix[enemy.y + 1][enemy.x] != "x"
+        ) {
+          matrix[enemy.y][enemy.x] = "0";
+          enemy.y = enemy.y + 1;
+          matrix[enemy.y][enemy.x] = "e";
+        }
+      }
+
+      // else if (enemy.x == playerPos.x && enemy.y == playerPos.y) {
+      //   clearInterval(interval);
+      // }
+    });
+
+    let out = [...matrix];
+    for (let i = 0; i < out.length; i++) {
+      out[i] = out[i].join(" ");
     }
 
-    fs.writeFile("newfile.json", JSON.stringify(matrix, null, 2), function(
-      err
-    ) {
+    fs.writeFile("newfile.json", JSON.stringify(out, null, 2), function(err) {
       if (err) throw err;
       console.log("File is created successfully.");
     });
-  }, 5000);
+  }, 1000);
 }
 
 module.exports = create();
